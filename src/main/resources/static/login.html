@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="js/axios.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 改为min-height确保内容不足时也能撑开 */
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 32px; /* 增加内边距 */
+            width: 100%;
+            max-width: 400px;
+            margin: 20px; /* 添加外边距防止贴边 */
+        }
+
+        .login-form h2 { /* 改用更合理的h2标签 */
+            text-align: center;
+            color: #1a237e;
+            margin: 0 0 32px 0; /* 调整间距 */
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 24px; /* 增加表单项间距 */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #424242; /* 调整颜色对比度 */
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 86.5%;
+            padding: 12px;
+            border: 1px solid #e0e0e0; /* 调整边框颜色 */
+            border-radius: 6px; /* 微调圆角 */
+            font-size: 16px;
+            transition: border-color 0.3s; /* 添加过渡效果 */
+        }
+
+        .form-group input:focus {
+            border-color: #3949ab; /* 聚焦状态 */
+            outline: none;
+        }
+
+        button[type="button"] { /* 使用属性选择器 */
+            width: 100%;
+            padding: 14px;
+            background-color: #3949ab;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="button"]:hover {
+            background-color: #283593;
+        }
+
+        .register-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            color: #3949ab;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        #username {
+            background-image: url('images/ic_user.png');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 20px;
+            padding-left: 40px;
+        }
+
+        #password {
+            background-image: url('images/ic_lock.png');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 20px;
+            padding-left: 40px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="login-container">
+    <form class="login-form">
+        <h2>用户登录</h2>
+
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" placeholder="请输入用户名" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入密码" required>
+        </div>
+
+        <button type="button" onclick="login()">登录</button>
+        <a href="register.html" class="register-link">注册新账户</a>
+    </form>
+</div>
+</body>
+
+<script>
+    function login() {
+        var username = document.getElementById('username').value
+        var password = document.getElementById('password').value
+        if (username === '' || password === '') {
+            alert('请输入用户名和密码');
+            return;
+        }
+        axios.post('/login', {
+            username: username,
+            password: password
+        })
+            .then(function (response) {
+                if (response.data.code === 1) {
+                    window.location.href = 'upload.html';
+                } else {
+                    alert(response.data.msg);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+</script>
+
+</html>

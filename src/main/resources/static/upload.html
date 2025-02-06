@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片上传</title>
+    <script src="js/axios.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            margin-top: 50px;
+            width: 80%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ic_photo {
+            width: 300px;
+            height: 300px;
+            margin: 30px auto;
+            background-image: url('images/ic_add_photo.png'); /* 替换为你的相机图标路径 */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .ic_photo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        button {
+            display: block;
+            width: 80%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-select {
+            background-color: white;
+            color: #3948aa;
+            border: 2px solid #3948aa;
+        }
+
+        .btn-upload {
+            background-color: #4bae4f;
+        }
+
+        .btn-download {
+            background-color: #3948aa;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>图片上传</h1>
+    <div class="ic_photo" id="ic_photo"></div>
+    <input type="file" id="fileInput" accept="image/*" style="display: none" />
+    <button class="btn-select" onclick="selectImage()">选择图片</button>
+    <button class="btn-upload" onclick="uploadImage()">上传</button>
+    <button class="btn-download" onclick="downloadImage()">保存到相册</button>
+</div>
+</body>
+
+<script>
+    let selectedImage = null;
+    let processedImageUrl = null;
+
+    // 选择图片
+    function selectImage() {
+        document.getElementById('fileInput').click();
+    }
+
+    // 读取选择的图片（增加质量保持逻辑）
+    document.getElementById('fileInput').addEventListener('change', async function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 使用更高质量的图片处理方式
+        const img = await createImageBitmap(file); // 使用原始二进制数据
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        // 转换为Blob时保持高质量
+        canvas.toBlob((blob) => {
+            selectedImage = new File([blob], file.name, {
+                type: 'image/jpg',
+                lastModified: Date.now()
+            });
+
+            // 预览处理
+            const url = URL.createObjectURL(blob);
+            document.getElementById('ic_photo').innerHTML = `<img src="${url}" />`;
+        }, 'image/jpg', 2.00); // 质量参数调整为100%
+    });
+
+    // 上传图片
+    async function uploadImage() {
+        if (!selectedImage) {
+            alert('请先选择一张图片');
+            return;
+        }
+
+        const formData = new FormData();
+        // 获取文件扩展名并重命名为image
+        const extension = selectedImage.name.split('.').pop();
+        formData.append('image', selectedImage, `image.${extension}`); // 关键修改
+
+        try {
+            const response = await axios.post('/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.data.code === 1) {
+                processedImageUrl = response.data.data;
+                alert('图片上传成功');
+            } else {
+                alert('图片上传失败: ' + response.data.message);
+            }
+        } catch (error) {
+            console.error('图片上传失败:', error);
+            alert('图片上传失败: ' + error.message);
+        }
+    }
+
+    // 下载图片时，确保使用的是原始图片路径
+    async function downloadImage() {
+        if (!processedImageUrl) {
+            alert('请先上传图片');
+            return;
+        }
+
+        try {
+            const response = await axios.get(processedImageUrl, {
+                responseType: 'blob', // 重要：指定响应类型为 blob
+            });
+
+            if (response.status === 200) {
+                const url = window.URL.createObjectURL(response.data);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = processedImageUrl.split('/').pop(); // 使用文件名作为下载名
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                alert('图片下载成功');
+            } else {
+                alert('图片下载失败');
+            }
+        } catch (error) {
+            console.error('图片下载失败:', error);
+            alert('图片下载失败: ' + error.message);
+        }
+    }
+</script>
+
+</html>

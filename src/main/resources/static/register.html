@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="js/axios.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .register-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .register-form h2 {
+            text-align: center;
+            color: #1a237e;
+            margin: 0 0 32px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #424242;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 86.5%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #3949ab;
+            outline: none;
+        }
+
+        button[type="button"] {
+            width: 100%;
+            padding: 14px;
+            background-color: #3949ab;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="button"]:hover {
+            background-color: #283593;
+        }
+
+        #a {
+            display: block;
+            text-align: center;
+            color: #3949ab;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        #a:hover {
+            text-decoration: underline;
+        }
+
+        #username {
+            background-image: url('images/ic_user.png');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 20px;
+            padding-left: 40px;
+        }
+
+        #password {
+            background-image: url('images/ic_lock.png');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 20px;
+            padding-left: 40px;
+        }
+
+        #confirmPassword {
+            background-image: url('images/ic_lock.png');
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 20px;
+            padding-left: 40px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="register-container">
+    <form id="registerForm" class="register-form">
+        <h2>用户注册</h2>
+
+        <div class="form-group">
+            <span class="form-label">用户名:</span>
+            <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+        </div>
+
+        <div class="form-group">
+            <span class="form-label">密码:</span>
+            <input type="password" id="password" name="password" placeholder="请输入密码" required>
+        </div>
+
+        <div class="form-group">
+            <span class="form-label">确认密码:</span>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码" required>
+        </div>
+
+        <div class="form-group">
+            <button type="button" onclick="register()">注册</button>
+        </div>
+
+        <div class="form-group">
+            <a href="login.html" id="a">已有账户？去登录</a>
+        </div>
+    </form>
+</div>
+</body>
+
+<script>
+    function register() {
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password').value;
+        var confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (username === '' || password === '' || confirmPassword === '') {
+            alert('请填写完整信息。');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert('密码不一致，请重新输入。');
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            return;
+        }
+
+        axios.post('/register', {
+            username: username,
+            password: password
+        })
+            .then(function (response) {
+                if (response.data.code === 1) {
+                    window.location.href = 'login.html';
+                } else {
+                    alert(response.data.msg);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+</script>
+
+</html>
